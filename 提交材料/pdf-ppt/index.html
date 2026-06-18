@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>UE5 FirstPersonGame Demo 技术说明</title>
+<style>
+  :root{
+    --bg:#f6f4ef;
+    --ink:#111111;
+    --muted:#666666;
+    --line:#d8d5cc;
+    --accent:#0057ff;
+    --accent2:#dfff00;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#222;color:var(--ink);font-family:"Inter","Helvetica Neue","Microsoft YaHei UI","Noto Sans SC",Arial,sans-serif}
+  body{counter-reset:slide}
+  .slide{
+    width:100vw;
+    height:100vh;
+    padding:6vh 6vw;
+    background:var(--bg);
+    position:relative;
+    overflow:hidden;
+    page-break-after:always;
+    break-after:page;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+  .slide:nth-child(even){background:#fff}
+  .slide::after{
+    counter-increment:slide;
+    content:counter(slide, decimal-leading-zero);
+    position:absolute;right:3vw;bottom:3vh;
+    font:600 12px/1 ui-monospace,SFMono-Regular,Consolas,monospace;
+    color:var(--muted);letter-spacing:.12em;
+  }
+  .kicker{font:700 13px/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:2vh}
+  h1,h2,h3,p{margin:0}
+  h1{font-size:min(7vw,11vh);line-height:.95;font-weight:250;letter-spacing:-.06em;max-width:86vw}
+  h2{font-size:min(4.4vw,7vh);line-height:1.05;font-weight:300;letter-spacing:-.04em;max-width:80vw}
+  h3{font-size:1.35vw;line-height:1.35;font-weight:700;margin-bottom:1vh}
+  .lead{font-size:1.55vw;line-height:1.65;font-weight:350;max-width:72vw;color:#222}
+  .meta{font:500 13px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);letter-spacing:.04em}
+  .grid{display:grid;gap:2vw}
+  .cols-2{grid-template-columns:1fr 1fr}
+  .cols-3{grid-template-columns:repeat(3,1fr)}
+  .card{border-top:4px solid var(--ink);padding:2vh 0 0 0;min-height:20vh}
+  .card.accent{border-top-color:var(--accent)}
+  .card.fill{background:#efede6;padding:2.2vh 1.8vw;border-top:0}
+  .big-num{font-size:min(10vw,16vh);line-height:.85;font-weight:200;letter-spacing:-.08em;color:var(--accent)}
+  .table{display:grid;grid-template-columns:1.2fr 2.2fr .8fr;border-top:1px solid var(--ink);font-size:1.22vw;line-height:1.5}
+  .table div{padding:1.4vh 0;border-bottom:1px solid var(--line)}
+  .ok{font-weight:700;color:var(--accent)}
+  .flow{display:flex;align-items:center;gap:1.2vw;margin-top:4vh}
+  .step{border:1px solid var(--ink);padding:2vh 1.5vw;min-height:16vh;flex:1;background:#fff}
+  .arrow{font-size:3vw;color:var(--accent);font-weight:200}
+  .foot{font:500 12px/1.6 ui-monospace,SFMono-Regular,Consolas,monospace;color:var(--muted);letter-spacing:.04em}
+  .bar{height:1.2vh;background:var(--line);margin-top:1vh;position:relative}.bar span{display:block;height:100%;background:var(--accent)}
+  .compact-list{font-size:1.32vw;line-height:1.8;margin:0;padding-left:1.4em}.compact-list li{margin:.2vh 0}
+  .dark{background:#111;color:#f7f4ec}.dark .lead,.dark .meta,.dark .foot{color:#d5d1c8}.dark .card{border-top-color:#f7f4ec}.dark .card.fill{background:#1e1e1e}.dark .table div{border-bottom-color:#333}.dark .table{border-top-color:#f7f4ec}
+  .print-note{position:fixed;left:1rem;bottom:1rem;background:#111;color:#fff;padding:.5rem .75rem;font-size:12px;z-index:9}
+  @media print{
+    @page{size:16in 9in;margin:0}
+    html,body{background:#fff;width:100%;height:100%}
+    .slide{width:16in;height:9in;padding:.55in .7in;page-break-after:always;break-after:page;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .print-note{display:none}
+    h1{font-size:.9in}h2{font-size:.52in}.lead{font-size:.19in}.compact-list,.table{font-size:.15in}h3{font-size:.17in}.big-num{font-size:1.15in}
+  }
+</style>
+</head>
+<body>
+<div class="print-note">导出 PDF：Ctrl+P → 横向 → 背景图形 → 边距无</div>
+
+<section class="slide dark">
+  <div>
+    <div class="kicker">UE5.4.4 / Client Assignment</div>
+    <h1>FirstPersonGame<br>Demo 技术说明</h1>
+  </div>
+  <div class="lead">基于 UE5 First Person 思路实现的简化射击 Demo：AI 敌人、得分胜利、多人网络合作对战。</div>
+  <div class="meta">姓名：________　学校：________　GitHub：________</div>
+</section>
+
+<section class="slide">
+  <div>
+    <div class="kicker">Requirement Check</div>
+    <h2>作业要求对照</h2>
+  </div>
+  <div class="table">
+    <div><b>要求</b></div><div><b>Demo 实现</b></div><div><b>状态</b></div>
+    <div>敌人功能</div><div>AI 敌人会追击最近玩家，进入范围后攻击；玩家可射击击败敌人。</div><div class="ok">完成</div>
+    <div>得分与胜利</div><div>击杀敌人获得分数；达到目标后 HUD 显示 YOU WIN；R 键软重置。</div><div class="ok">完成</div>
+    <div>多人网络对战</div><div>PIE Listen Server + Client 两名玩家合作对抗 AI 敌人，敌人死亡和得分由服务端处理。</div><div class="ok">完成</div>
+  </div>
+  <div class="foot">提交形式：Demo 视频 + PDF 技术说明。</div>
+</section>
+
+<section class="slide">
+  <div>
+    <div class="kicker">Gameplay</div>
+    <h2>核心玩法：双人合作对抗 AI 敌人</h2>
+  </div>
+  <div class="grid cols-3">
+    <div class="card accent"><h3>玩家</h3><p class="lead">WASD 移动，鼠标控制视角，左键射击。HUD 显示血量、分数和胜利提示。</p></div>
+    <div class="card"><h3>敌人</h3><p class="lead">敌人自动寻找最近玩家，持续靠近并攻击。被击杀后同步消失。</p></div>
+    <div class="card"><h3>目标</h3><p class="lead">玩家合作击杀敌人获得分数，达到目标分后触发胜利。</p></div>
+  </div>
+  <div class="foot">Demo 重点是功能完整和网络同步，不追求复杂美术。</div>
+</section>
+
+<section class="slide dark">
+  <div>
+    <div class="kicker">Player System</div>
+    <h2>玩家系统</h2>
+  </div>
+  <div class="grid cols-2">
+    <div>
+      <ul class="compact-list">
+        <li>Enhanced Input：移动、视角、跳跃、射击。</li>
+        <li>第一人称摄像机 + 枪模型占位。</li>
+        <li>射击使用服务端射线检测。</li>
+        <li>蓝色短射线用于表现弹道。</li>
+        <li>血量通过复制同步到客户端。</li>
+      </ul>
+    </div>
+    <div class="card fill">
+      <div class="big-num">RPC</div>
+      <p class="lead">客户端按下左键后调用 Server RPC，由服务端进行命中和伤害判定，避免客户端各自计算导致不同步。</p>
+    </div>
+  </div>
+  <div class="foot">关键类：FPCharacter / FPPlayerController / FPGameHUDWidget</div>
+</section>
+
+<section class="slide">
+  <div>
+    <div class="kicker">Enemy AI</div>
+    <h2>敌人 AI 与死亡同步</h2>
+  </div>
+  <div class="flow">
+    <div class="step"><h3>寻找目标</h3><p>遍历玩家角色，选择距离最近的玩家。</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><h3>追击攻击</h3><p>敌人朝玩家移动，进入攻击范围后造成伤害。</p></div>
+    <div class="arrow">→</div>
+    <div class="step"><h3>受伤死亡</h3><p>服务端扣血；血量归零后调用 Multicast 隐藏并关闭碰撞。</p></div>
+  </div>
+  <div class="foot">敌人开启 Actor 复制、移动复制和血量复制。</div>
+</section>
+
+<section class="slide">
+  <div>
+    <div class="kicker">Network</div>
+    <h2>多人网络实现</h2>
+  </div>
+  <div class="grid cols-2">
+    <div class="card accent"><h3>测试方式</h3><p class="lead">UE PIE：Number of Players = 2，Net Mode = Play As Listen Server。一个窗口作为 Server，一个窗口作为 Client。</p></div>
+    <div class="card"><h3>同步内容</h3><p class="lead">玩家移动、敌人移动、敌人死亡、玩家血量、分数和胜利状态通过 UE 网络机制同步。</p></div>
+  </div>
+  <div class="flow">
+    <div class="step">Client 输入</div><div class="arrow">→</div><div class="step">ServerShoot</div><div class="arrow">→</div><div class="step">伤害/得分</div><div class="arrow">→</div><div class="step">Replication</div>
+  </div>
+</section>
+
+<section class="slide dark">
+  <div>
+    <div class="kicker">Score & Reset</div>
+    <h2>得分、胜利与软重置</h2>
+  </div>
+  <div class="grid cols-3">
+    <div class="card"><h3>得分</h3><p class="lead">击杀敌人的玩家获得分数，分数保存在 GameState 中。</p></div>
+    <div class="card"><h3>胜利</h3><p class="lead">分数达到目标后通知对应客户端显示 YOU WIN。</p></div>
+    <div class="card"><h3>软重置</h3><p class="lead">按 R 不重载地图；服务端重置玩家、敌人、分数和 HUD，避免多人世界线分裂。</p></div>
+  </div>
+  <div class="foot">关键类：FPGameState / FPGameMode / FPCharacter</div>
+</section>
+
+<section class="slide">
+  <div>
+    <div class="kicker">How to Run</div>
+    <h2>Demo 操作说明</h2>
+  </div>
+  <div class="grid cols-2">
+    <div class="card fill"><h3>单人测试</h3><ul class="compact-list"><li>Number of Players = 1</li><li>WASD 移动，鼠标转向</li><li>左键射击敌人</li><li>击杀达到目标后显示 YOU WIN</li><li>按 R 软重置</li></ul></div>
+    <div class="card fill"><h3>多人测试</h3><ul class="compact-list"><li>Number of Players = 2</li><li>Net Mode = Play As Listen Server</li><li>两个玩家合作打 AI 敌人</li><li>敌人死亡同步消失</li><li>服务端统一处理伤害和得分</li></ul></div>
+  </div>
+  <div class="foot">若要导出 PDF：浏览器打开本文件，Ctrl+P，选择横向、背景图形、边距无。</div>
+</section>
+
+<section class="slide dark">
+  <div>
+    <div class="kicker">Summary</div>
+    <h2>总结</h2>
+  </div>
+  <div class="lead">本 Demo 围绕作业要求完成了一个轻量级 UE5 第一人称合作射击原型。项目重点展示 AI 敌人、射击伤害、HUD、得分胜利和多人网络同步流程。由于这是课程作业 Demo，未加入复杂大厅、匹配系统和正式美术资源，后续可继续扩展换弹、音效、命中特效和正式角色模型。</div>
+  <div class="meta">GitHub 链接：________________________</div>
+</section>
+
+</body>
+</html>

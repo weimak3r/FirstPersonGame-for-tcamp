@@ -1,0 +1,31 @@
+# UE5
+Binaries/
+Intermediate/
+DerivedDataCache/
+Saved/
+Build/
+.vs/
+*.sln
+*.suo
+*.user
+*.VC.db
+*.opensdf
+*.sdf
+obj/
+bin/
+
+# 大文件 & 缓存
+*.uasset.cache
+*.uexp.cache
+*.ubulk.cache
+
+# 编译产物
+Windows/
+
+# Content 中自动生成的文件（保留手动创建的）
+Content/Collections/
+Content/Developers/
+
+# OS
+.DS_Store
+Thumbs.db
