@@ -52,7 +52,7 @@ FirstPersonGame/
 
 ### 👤 作者 | Author
 
-**韦佳宏 · 天津财经大学** | GitHub: [weimak3r](https://github.com/weimak3r)
+**weimak3r**
 
 ---
 
